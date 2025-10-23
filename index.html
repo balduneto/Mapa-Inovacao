@@ -285,6 +285,17 @@
             height: 1rem;
             margin-right: 0.25rem; /* mr-1 */
         }
+        
+        /* Estilos específicos para a lista no modal */
+        #modal-body ul {
+            list-style: disc;
+            margin-left: 1.5rem;
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+        }
+         #modal-body li {
+            margin-bottom: 0.25rem;
+        }
 
     </style>
 </head>
@@ -913,7 +924,7 @@
             
 
 <div id="modal-body" class="text-gray-700 prose max-w-none text-base leading-relaxed space-y-4">
-                <p>Análise detalhada...</p>
+                {/* O conteúdo do Modal será preenchido pelo Javascript */}
             </div>
         </div>
     </div>
@@ -950,17 +961,153 @@
             positions: [16, 19, 15, 17, 24, 13, 24] // Posição 17 para Estrutura de Apoio
         };
         
-        // Dados para o mapa interativo (Mantidos)
+        // Dados para o mapa interativo com análise detalhada
         const stateData = {
-            'SP': { rank: 1, title: 'São Paulo (1º)', analysis: 'Líder absoluto...' },
-            'AM': { rank: 9, title: 'Amazonas (9º)', analysis: 'Recuou, mas forte em P&D (ZFM)...' },
-            'SC': { rank: 2, title: 'Santa Catarina (2º)', analysis: 'Vice-líder, ecossistema denso...' },
-            'MS': { rank: 14, title: 'Mato Grosso do Sul (14º)', analysis: 'Melhor do CO, equilibrado...' },
-            'DF': { rank: 17, title: 'Distrito Federal (17º)', analysis: 'Forte em pesquisa/bolsas, fraco em EAC/Patentes...' },
-            'GO': { rank: 26, title: 'Goiás (26º)', analysis: 'Desafio urgente, 26º, distante dos benchmarks...' },
-            'MT': { rank: 20, title: 'Mato Grosso (20º)', analysis: 'Evolução visível, superando GO...' },
-            'TO': { rank: 27, title: 'Tocantins (27º)', analysis: 'Lanterna, desafios estruturais...' }
+             'SP': { 
+                rank: 1, 
+                title: 'São Paulo (1º) - O Gigante da Inovação', 
+                analysis: `
+                    <p class="mb-3">Líder absoluto e benchmark nacional inquestionável.</p>
+                    <h4 class="font-bold text-green-600 mb-1">Principais Pontos Fortes:</h4>
+                    <ul>
+                        <li><strong class="text-blue-600">Investimentos P&D:</strong> Robustos, tanto públicos quanto privados, alimentando um ciclo contínuo de pesquisa e desenvolvimento.</li>
+                        <li><strong class="text-blue-600">Estrutura de Apoio:</strong> A maior densidade do país (parques tecnológicos, incubadoras, aceleradoras, universidades de ponta como USP, Unicamp, Unesp).</li>
+                        <li><strong class="text-blue-600">Ecossistema Empresarial:</strong> Maduro, com alta concentração de Empresas de Alto Crescimento (EAC), capital de risco (venture capital) e startups.</li>
+                         <li><strong class="text-blue-600">Capital Humano:</strong> Vasta rede de universidades e centros de pesquisa formando talentos e gerando conhecimento (refletido em Patentes e Pesquisa Científica).</li>
+                    </ul>
+                    <h4 class="font-bold text-red-600 mt-4 mb-1">Principais Desafios:</h4>
+                    <ul>
+                        <li>Manter a liderança frente à crescente competitividade de outros estados (como SC).</li>
+                        <li>Reduzir a burocracia para abertura e gestão de empresas inovadoras.</li>
+                        <li>Melhorar a integração entre a capital e o interior do estado em termos de inovação.</li>
+                    </ul>` 
+            },
+            'AM': { 
+                rank: 9, 
+                title: 'Amazonas (9º) - O Recuo Estratégico', 
+                analysis: `
+                    <p class="mb-3">Recuou da vice-liderança para 9º, mas permanece no Top 10, demonstrando resiliência.</p>
+                    <h4 class="font-bold text-green-600 mb-1">Principais Pontos Fortes:</h4>
+                     <ul>
+                        <li><strong class="text-blue-600">Investimentos em P&D (Privado):</strong> Fortemente alavancado pelos incentivos e contrapartidas da Zona Franca de Manaus (ZFM), direcionados à indústria.</li>
+                        <li><strong class="text-blue-600">Pesquisa Científica:</strong> Foco notável, especialmente ligado à bioeconomia amazônica e à indústria de base tecnológica instalada na ZFM.</li>
+                         <li><strong class="text-blue-600">Ambiente Regulatório Específico:</strong> A ZFM cria um ecossistema particular que favorece a inovação industrial focada em processos e produtos locais.</li>
+                     </ul>
+                    <h4 class="font-bold text-red-600 mt-4 mb-1">Principais Desafios:</h4>
+                     <ul>
+                        <li><strong class="text-red-600">Dependência da ZFM:</strong> A inovação é muito concentrada nos setores beneficiados pela ZFM, com menor dinamismo em outras áreas.</li>
+                        <li><strong class="text-red-600">Estrutura de Apoio e EAC:</strong> Menor densidade de incubadoras, aceleradoras e startups fora do guarda-chuva da ZFM.</li>
+                        <li><strong class="text-red-600">Logística e Conectividade:</strong> Gargalos de infraestrutura que dificultam a atração de talentos e a integração com outros ecossistemas.</li>
+                    </ul>`
+            },
+            'SC': { 
+                rank: 2, 
+                title: 'Santa Catarina (2º) - O Ecossistema Dinâmico', 
+                analysis: `
+                    <p class="mb-3">Assume a vice-liderança nacional, consolidando-se como um modelo de sucesso.</p>
+                     <h4 class="font-bold text-green-600 mb-1">Principais Pontos Fortes:</h4>
+                    <ul>
+                        <li><strong class="text-blue-600">Ecossistema Denso e Capilarizado:</strong> Forte presença de associações (como ACATE), incubadoras e parques tecnológicos distribuídos pelo estado.</li>
+                        <li><strong class="text-blue-600">Empresas de Alto Crescimento (EAC):</strong> Altíssimo índice, demonstrando capacidade de gerar e escalar negócios inovadores ("converter pesquisa em nota fiscal").</li>
+                        <li><strong class="text-blue-600">Cultura de Cooperação:</strong> Forte integração entre universidades, empresas e governo, facilitando a transferência de tecnologia.</li>
+                        <li><strong class="text-blue-600">Patentes per capita:</strong> Alto índice, refletindo a aplicação prática da pesquisa desenvolvida.</li>
+                    </ul>
+                     <h4 class="font-bold text-red-600 mt-4 mb-1">Principais Desafios:</h4>
+                     <ul>
+                         <li>Atrair e reter talentos em um mercado aquecido e competitivo.</li>
+                         <li>Manter o dinamismo do ecossistema frente ao crescimento e à necessidade de gestão mais complexa.</li>
+                        <li>Ampliar o investimento público em P&D para complementar o forte investimento privado.</li>
+                    </ul>`
+            },
+            'MS': { 
+                rank: 14, 
+                title: 'Mato Grosso do Sul (14º) - O Equilíbrio Regional', 
+                analysis: `
+                    <p class="mb-3">Melhor desempenho do Centro-Oeste e principal benchmark regional para Goiás.</p>
+                    <h4 class="font-bold text-green-600 mb-1">Principais Pontos Fortes:</h4>
+                    <ul>
+                        <li><strong class="text-blue-600">Equilíbrio nos Indicadores:</strong> Conseguiu se manter no Top 15 sem apresentar gaps tão críticos quanto os vizinhos, mostrando consistência.</li>
+                        <li><strong class="text-blue-600">Investimento em P&D e Estrutura de Apoio:</strong> Desempenho relativamente bom, indicando políticas focadas nessas áreas.</li>
+                         <li><strong class="text-blue-600">Potencial em AgroTech:</strong> Começa a se destacar na atração de investimentos e desenvolvimento de soluções para o agronegócio.</li>
+                    </ul>
+                     <h4 class="font-bold text-red-600 mt-4 mb-1">Principais Desafios:</h4>
+                    <ul>
+                        <li><strong class="text-red-600">Escala do Ecossistema:</strong> Ainda precisa adensar sua estrutura de apoio e aumentar o número de EACs para competir com os líderes.</li>
+                        <li><strong class="text-red-600">Pesquisa Científica e Patentes:</strong> Necessita fortalecer a conexão entre a produção acadêmica e a geração de propriedade intelectual aplicável ao mercado.</li>
+                    </ul>`
+            },
+            'DF': { 
+                rank: 17, 
+                title: 'Distrito Federal (17º) - O Polo de Conhecimento', 
+                analysis: `
+                     <p class="mb-3">Posição intermediária, com leve melhora, caracterizada pela força acadêmica.</p>
+                     <h4 class="font-bold text-green-600 mb-1">Principais Pontos Fortes:</h4>
+                    <ul>
+                        <li><strong class="text-blue-600">Pesquisa Científica e Bolsas:</strong> Excelente desempenho devido à alta concentração de universidades federais (notavelmente a UnB) e institutos de pesquisa governamentais.</li>
+                        <li><strong class="text-blue-600">Capital Humano Qualificado:</strong> Presença de servidores públicos e pesquisadores com alta formação.</li>
+                         <li><strong class="text-blue-600">Estrutura de Apoio (Potencial):</strong> Possui parques tecnológicos e incubadoras ligados ao governo e universidades, com potencial de expansão.</li>
+                    </ul>
+                    <h4 class="font-bold text-red-600 mt-4 mb-1">Principais Desafios:</h4>
+                    <ul>
+                        <li><strong class="text-red-600">Empresas de Alto Crescimento e Patentes:</strong> Enorme dificuldade em transformar o vasto conhecimento acadêmico/científico em negócios inovadores e propriedade intelectual.</li>
+                        <li><strong class="text-red-600">Dinamismo Empresarial:</strong> Ecossistema de startups menos vibrante comparado a outros polos, com menor cultura empreendedora fora do setor público/serviços.</li>
+                         <li><strong class="text-red-600">Integração Público-Privado:</strong> Necessidade de criar pontes mais eficazes entre os centros de pesquisa governamentais/universitários e o setor produtivo.</li>
+                    </ul>`
+            },
+            'GO': { 
+                rank: 26, 
+                title: 'Goiás (26º) - O Desafio Urgente', 
+                analysis: `
+                    <p class="mb-3">Posição crítica, com leve melhora em relação ao fundo do poço de 2024 (27º), mas ainda muito distante dos líderes e benchmarks.</p>
+                     <h4 class="font-bold text-green-600 mb-1">Principais Pontos Fortes (Relativos):</h4>
+                     <ul>
+                         <li><strong class="text-blue-600">Info & Comunicação (13º):</strong> Melhor indicador do pilar, sugerindo uma infraestrutura digital razoável como base.</li>
+                         <li><strong class="text-blue-600">Bolsas (15º):</strong> Capacidade de formação de mestres e doutores, um ativo a ser retido.</li>
+                         <li><strong class="text-blue-600">Estrutura de Apoio (17º):</strong> Melhora significativa neste indicador (era 21º), mostrando algum avanço na organização do ecossistema.</li>
+                     </ul>
+                    <h4 class="font-bold text-red-600 mt-4 mb-1">Principais Desafios (Críticos):</h4>
+                    <ul>
+                        <li><strong class="text-red-600">Pesquisa Científica (24º):</strong> Incapacidade de gerar pesquisa de impacto ou conectá-la ao mercado.</li>
+                        <li><strong class="text-red-600">Empresas de Alto Crescimento (24º):</strong> Falta de dinamismo empresarial e ambiente hostil para *scale-ups*.</li>
+                        <li><strong class="text-red-600">Investimento Público em P&D (16º):</strong> Embora mediano, a trajetória histórica indica inconsistência e possível ineficiência na alocação.</li>
+                        <li><strong class="text-red-600">Patentes (19º):</strong> Baixa conversão de ideias/pesquisas em propriedade intelectual.</li>
+                    </ul>`
+            },
+            'MT': { 
+                rank: 20, 
+                title: 'Mato Grosso (20º) - Evolução Visível', 
+                analysis: `
+                    <p class="mb-3">Surpreendente melhora, saindo das últimas posições para superar Goiás.</p>
+                     <h4 class="font-bold text-green-600 mb-1">Principais Pontos Fortes:</h4>
+                    <ul>
+                        <li><strong class="text-blue-600">Trajetória de Melhoria:</strong> O avanço no ranking indica que políticas focadas podem estar surtindo efeito, mesmo que partindo de uma base baixa.</li>
+                         <li><strong class="text-blue-600">Potencial em AgroTech:</strong> Similar a MS e GO, possui um vasto campo para aplicação de inovação no agronegócio.</li>
+                    </ul>
+                     <h4 class="font-bold text-red-600 mt-4 mb-1">Principais Desafios:</h4>
+                    <ul>
+                        <li><strong class="text-red-600">Gaps Estruturais:</strong> Apesar da melhora, ainda parte de uma posição baixa e possui deficiências em quase todos os indicadores (P&D, Estrutura de Apoio, Pesquisa Científica, EAC).</li>
+                        <li><strong class="text-red-600">Ecossistema Incipiente:</strong> Necessidade de construir e adensar todo o ecossistema de inovação (universidades, incubadoras, investimento).</li>
+                        <li><strong class="text-red-600">Dependência de Commodities:</strong> Forte concentração econômica no agronegócio, dificultando a diversificação para setores de maior valor agregado tecnológico.</li>
+                    </ul>`
+            },
+            'TO': {
+                rank: 27,
+                title: 'Tocantins (27º) - A Lanterna da Inovação',
+                analysis: `
+                    <p class="mb-3">Última posição no pilar, indicando os maiores desafios do país.</p>
+                     <h4 class="font-bold text-green-600 mb-1">Principais Pontos Fortes:</h4>
+                    <ul>
+                         <li>(Difícil identificar pontos fortes significativos neste pilar, dada a posição). Potencialmente, políticas estaduais recentes podem visar melhorias futuras.</li>
+                    </ul>
+                    <h4 class="font-bold text-red-600 mt-4 mb-1">Principais Desafios (Generalizados):</h4>
+                     <ul>
+                        <li><strong class="text-red-600">Todos os Indicadores:</strong> Apresenta desempenho muito baixo em Investimento em P&D, Patentes, Bolsas, Estrutura de Apoio, Pesquisa Científica, Info & Comunicação e EAC.</li>
+                        <li><strong class="text-red-600">Ecossistema de Inovação:</strong> Necessidade de construir praticamente do zero as bases para um ecossistema funcional (infraestrutura, capital humano, investimento, cultura empreendedora).</li>
+                         <li><strong class="text-red-600">Isolamento Geográfico e Econômico:</strong> Dificuldades logísticas e menor dinamismo econômico podem ser barreiras adicionais.</li>
+                    </ul>`
+            }
         };
+
 
         // --- LÓGICA DO DOM (GRÁFICOS, ABAS, MODAL, ACCORDIONS) ---
         document.addEventListener('DOMContentLoaded', () => {
@@ -1164,7 +1311,8 @@
             if (!data || !modalBackdrop || !modalContent || !modalTitle || !modalBody) return;
 
             modalTitle.innerHTML = data.title;
-            modalBody.innerHTML = `<p>${data.analysis}</p>`;
+            // Inject the detailed analysis into the modal body
+             modalBody.innerHTML = data.analysis; // Updated to inject the detailed HTML string
             
             document.body.classList.add('modal-open');
             modalBackdrop.classList.remove('hidden');
