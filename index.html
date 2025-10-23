@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foresight Inovação: O Desafio e o Potencial do SENAI em Goiás</title>
+    <!-- Tailwind CSS --><script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js --><script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Plugin de Datalabels para Chart.js --><script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+    
+    <style>
+        /* Fonte Inter e Montserrat */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@700;800&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb; /* bg-gray-50 */
+            color: #111827; /* text-gray-900 */
+        }
+        h1, h2, h3, h4 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+        }
+        
+        /* Estilos do Modal */
+        #modal-backdrop {
+            transition: opacity 0.3s ease;
+        }
+        #modal-content {
+            transition: all 0.3s ease;
+            transform: translateY(-20px);
+        }
+        body.modal-open #modal-content {
+            transform: translateY(0);
+        }
+
+        /* Estilos do Mapa Interativo */
+        .map-dot {
+            position: absolute;
+            width: 1.25rem; /* w-5 */
+            height: 1.25rem; /* h-5 */
+            border-radius: 9999px; /* rounded-full */
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            border: 2px solid white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .map-dot:hover {
+            transform: scale(1.5);
+            z-index: 20;
+        }
+        /* Legenda do Mapa */
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+        
+        /* Abas de Cenários */
+        .tab-btn {
+            transition: all 0.2s ease;
+            padding-bottom: 8px;
+            border-bottom-width: 3px;
+        }
+        .tab-btn.active {
+            border-color: #2563eb; /* border-blue-600 */
+            color: #2563eb; /* text-blue-600 */
+            font-weight: 600;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Estilos para o design moderno e elegante */
+        .section-wrapper {
+            background-color: #ffffff;
+            border-radius: 1rem; /* rounded-xl */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+            padding: 2rem; /* p-8 */
+            margin-bottom: 2rem; /* mb-8 */
+        }
+        .card {
+            background-color: #ffffff;
+            border-radius: 1rem; /* rounded-xl */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            border: 1px solid #e5e7eb; /* border-gray-200 */
+            padding: 1.5rem; /* p-6 */
+            transition: all 0.3s ease-in-out;
+        }
+        .card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
+            transform: translateY(-4px);
+        }
+        
+        .section-heading {
+            color: #111827; /* text-gray-900 */
+            font-weight: 800;
+            font-size: 2.25rem; /* text-4xl */
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem; /* gap-3 */
+        }
+        .section-subheading {
+            color: #4b5563; /* text-gray-600 */
+            font-size: 1.125rem; /* text-lg */
+            margin-bottom: 2rem;
+            font-weight: 500;
+        }
+        .sub-heading {
+            color: #1f2937; /* text-gray-800 */
+            font-size: 1.25rem; /* text-xl */
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        .text-highlight {
+            color: #2563eb; /* blue-600 */
+            font-weight: 600;
+        }
+
+        /* --- NOVOS ESTILOS PARA INTERAÇÃO NO BLOCO --- */
+        .gap-toggle-btn {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            padding: 0.75rem;
+            border-radius: 0.5rem; /* rounded-lg */
+            border: 1px solid transparent;
+        }
+        .gap-toggle-btn:hover {
+            background-color: #eff6ff; /* blue-50 */
+            border-color: #bfdbfe; /* blue-200 */
+        }
+        .gap-toggle-btn.active {
+            background-color: #dbeafe; /* blue-100 */
+            border-color: #93c5fd; /* blue-300 */
+        }
+        .gap-chevron {
+            transition: transform 0.2s ease-in-out;
+        }
+        .gap-toggle-btn.active .gap-chevron {
+            transform: rotate(180deg);
+        }
+        .insight-panel {
+            display: none; /* Oculto por padrão */
+            margin-top: 0.5rem; /* mt-2 */
+            padding: 1rem; /* p-4 */
+            background-color: #f9fafb; /* bg-gray-50 */
+            border-left: 4px solid #2563eb; /* border-l-4 border-blue-600 */
+            border-radius: 0.375rem; /* rounded-md */
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* --- FIM DOS NOVOS ESTILOS --- */
+
+        /* Estilo para Solução Destacada */
+        .solution-card {
+            transition: all 0.3s ease-in-out;
+        }
+        .solution-card.highlight-solution {
+            transform: scale(1.03);
+            box-shadow: 0 0 0 4px #2563eb; /* ring-4 ring-blue-600 */
+            z-index: 10;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        
+        <!-- Cabeçalho -->
+        <header class="mb-8 p-6 bg-gradient-to-r from-blue-700 to-indigo-800 text-white rounded-xl shadow-lg">
+            <h1 class="text-4xl font-extrabold mb-2">Foresight Inovação: Goiás 2025</h1>
+            <p class="text-xl opacity-90">Diagnóstico, Cenários e Oportunidades com a Força do SENAI</p>
+        </header>
+
+        <!-- Seção 1: Diagnóstico -->
+        <section class="section-wrapper" id="diagnostico">
+            <h2 class="section-heading">
+                <!-- Icon: Chart -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+                </svg>
+                Diagnóstico: Onde Estamos?
+            </h2>
+            <p class="section-subheading">A trajetória histórica e os gaps atuais que colocam Goiás na 26ª posição em Inovação.</p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Card: Série Histórica -->
+                <div class="card h-full">
+                    <h3 class="sub-heading text-red-700">A Queda na Competitividade (2022-2024)</h3>
+                    <p class="text-sm text-gray-600 mb-4">Posição de Goiás no pilar Inovação entre as 27 UFs. Uma tendência preocupante de recuo contínuo.</p>
+                    <div class="h-64 md:h-80 relative">
+                        <canvas id="historicalChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Card: Radar de Gaps + Lista Interativa -->
+                <div class="card h-full">
+                    <h3 class="sub-heading text-blue-800">Gaps Críticos & Oportunidades (2024)</h3>
+                    <p class="text-sm text-gray-600 mb-4">A performance de GO nos 7 subindicadores. <span class="font-bold">Clique em um Gap</span> abaixo para ver o <span class="font-bold text-blue-600">Insight Estratégico</span> e a <span class="font-bold text-blue-600">Alavanca SENAI</span> correspondente.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Lista Interativa de Gaps -->
+                        <div class="flex flex-col justify-center space-y-2">
+                            
+                            <!-- Gap 1: Pesquisa Científica -->
+                            <div>
+                                <button class="gap-toggle-btn" data-target="insight-pd">
+                                    <div>
+                                        <span class="font-bold text-base text-red-600">24º - Pesquisa Científica</span>
+                                        <p class="text-xs text-gray-500 text-left">Base acadêmica/científica fraca.</p>
+                                    </div>
+                                    <svg class="gap-chevron h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                                </button>
+                                <div class="insight-panel" id="insight-pd">
+                                    <h4 class="font-bold text-sm text-blue-800">Insight Estratégico:</h4>
+                                    <p class="text-sm text-gray-700 mb-2">Goiás é fraco em pesquisa aplicada (24º) e vem cortando P&D (-5 posições). Falta converter conhecimento acadêmico em produto/patente.</p>
+                                    <h4 class="font-bold text-sm text-blue-800">Alavanca SENAI:</h4>
+                                    <p class="text-sm text-gray-700">Ativar os <span class="font-semibold">Centros de Excelência (P,D&I Aplicada)</span> e as <span class="font-semibold">Redes Colaborativas (ex: Fraunhofer)</span> para conectar a indústria a projetos de P&D com foco em resultados (TRL alto).</p>
+                                </div>
+                            </div>
+
+                            <!-- Gap 2: Empresas Alto Crescimento -->
+                            <div>
+                                <button class="gap-toggle-btn" data-target="insight-eac">
+                                    <div>
+                                        <span class="font-bold text-base text-red-600">24º - Empresas Alto Cresc.</span>
+                                        <p class="text-xs text-gray-500 text-left">Baixo dinamismo empresarial.</p>
+                                    </div>
+                                    <svg class="gap-chevron h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                                </button>
+                                <div class="insight-panel" id="insight-eac">
+                                    <h4 class="font-bold text-sm text-blue-800">Insight Estratégico:</h4>
+                                    <p class="text-sm text-gray-700 mb-2">O estado não consegue criar *scale-ups*. Faltam mecanismos de fomento para empresas que já passaram da fase de *startup* e precisam tracionar.</p>
+                                    <h4 class="font-bold text-sm text-blue-800">Alavanca SENAI:</h4>
+                                    <p class="text-sm text-gray-700">Usar o <span class="font-semibold">SENAI Hub</span> e o <span class="font-semibold">Ambiente Virtual de Incubação (AVI)</span> como aceleradoras, conectando indústrias-madrinha a *startups* com potencial de alto crescimento (Editais, Fomento, Crédito).</p>
+                                </div>
+                            </div>
+
+                            <!-- Gap 3: Estrutura de Apoio -->
+                            <div>
+                                <button class="gap-toggle-btn" data-target="insight-estrutura">
+                                    <div>
+                                        <span class="font-bold text-base text-red-600">21º - Estrutura de Apoio</span>
+                                        <p class="text-xs text-gray-500 text-left">Poucas incubadoras/parques.</p>
+                                    </div>
+                                    <svg class="gap-chevron h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                                </button>
+                                <div class="insight-panel" id="insight-estrutura">
+                                    <h4 class="font-bold text-sm text-blue-800">Insight Estratégico:</h4>
+                                    <p class="text-sm text-gray-700 mb-2">A infraestrutura de inovação (parques, incubadoras) é escassa e muito concentrada na capital, não aproveitando as vocações regionais.</p>
+                                    <h4 class="font-bold text-sm text-blue-800">Alavanca SENAI:</h4>
+                                    <p class="text-sm text-gray-700">Utilizar os <span class="font-semibold">8 Pólos de Conhecimento SENAI</span> (ex: Anápolis, Catalão, Rio Verde) como âncoras para <span class="font-semibold">interiorizar a 'Estrutura de Apoio'</span>, criando hubs setoriais especializados e capilarizando a inovação.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Gráfico Radar -->
+                        <div class="h-64 md:h-80 relative">
+                            <canvas id="radarChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção 2: Benchmark -->
+        <section class="section-wrapper" id="benchmark">
+            <h2 class="section-heading">
+                <!-- Icon: Map -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l5.447 2.724A1 1 0 0021 16.382V5.618a1 1 0 00-1.447-.894L15 7m0 13V7m0 0L9 4" />
+                </svg>
+                Benchmark: Como nos Comparamos?
+            </h2>
+            <p class="section-subheading">Análise interativa do pilar Inovação (2024). Clique nos estados para comparar atributos e gargalos.</p>
+            <div class="card">
+                <!-- Legenda -->
+                <div class="flex flex-wrap gap-x-4 gap-y-2 mb-6 text-sm">
+                    <div><span class="legend-dot bg-green-500"></span>Líderes Nacionais (Top 2)</div>
+                    <div><span class="legend-dot bg-yellow-500"></span>Centro-Oeste (Benchmarks)</div>
+                    <div><span class="legend-dot bg-red-600"></span>Foco (GO) e Lanterna (TO)</div>
+                    <div><span class="legend-dot bg-blue-500"></span>Outros Destaques (AM, MT)</div>
+                </div>
+                <!-- Mapa -->
+                <div class="relative w-full max-w-lg mx-auto aspect-square">
+                    <img src="https://i.postimg.cc/nh6BLb91/doodle-freehand-drawing-of-brazil-map-free-png.webp" 
+                         alt="Mapa do Brasil" 
+                         class="w-full h-full object-contain"
+                         onerror="this.alt='Erro ao carregar o mapa do Brasil. O infográfico continua funcional.'; this.src='https://placehold.co/600x600/eeeeee/cccccc?text=Mapa+do+Brasil+Indispon%C3%ADvel';">
+                    <!-- Pontos Interativos -->
+                    <div class="map-dot bg-green-500" style="top: 72%; left: 60%;" title="São Paulo (1º)" data-state="SP"></div>
+                    <div class="map-dot bg-green-500" style="top: 78%; left: 59%;" title="Santa Catarina (2º)" data-state="SC"></div>
+                    <div class="map-dot bg-blue-500" style="top: 38%; left: 35%;" title="Amazonas (9º)" data-state="AM"></div>
+                    <div class="map-dot bg-yellow-500" style="top: 68%; left: 52%;" title="Mato Grosso do Sul (14º)" data-state="MS"></div>
+                    <div class="map-dot bg-yellow-500" style="top: 61%; left: 61%;" title="Distrito Federal (17º)" data-state="DF"></div>
+                    <div class="map-dot bg-red-600 animate-pulse" style="top: 62%; left: 58%;" title="Goiás (26º)" data-state="GO"></div>
+                    <div class="map-dot bg-blue-500" style="top: 55%; left: 51%;" title="Mato Grosso (20º)" data-state="MT"></div>
+                    <div class="map-dot bg-red-600" style="top: 53%; left: 63%;" title="Tocantins (27º)" data-state="TO"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção 3: Foresight (Cenários) -->
+        <section class="section-wrapper" id="foresight">
+            <h2 class="section-heading">
+                <!-- Icon: Trending Up -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+                Foresight: Para Onde Vamos? (2025-2027)
+            </h2>
+            <p class="section-subheading">Três trajetórias possíveis para a inovação em Goiás, baseadas nas decisões estratégicas atuais.</p>
+            <div class="card">
+                <!-- Abas -->
+                <div class="border-b border-gray-200 mb-6">
+                    <nav class="-mb-px flex gap-6" id="tabs-nav">
+                        <button class="tab-btn active text-gray-600 hover:text-blue-600 hover:border-blue-300 text-lg" data-tab="tab-aceleracao">
+                            Cenário 1: Aceleração (Desejado)
+                        </button>
+                        <button class="tab-btn text-gray-600 hover:text-blue-600 hover:border-blue-300 text-lg" data-tab="tab-base">
+                            Cenário 2: Base (Provável)
+                        </button>
+                        <button class="tab-btn text-gray-600 hover:text-blue-600 hover:border-blue-300 text-lg" data-tab="tab-estagnacao">
+                            Cenário 3: Estagnação (A Evitar)
+                        </button>
+                    </nav>
+                </div>
+                <!-- Conteúdo das Abas -->
+                <div id="tabs-content" class="text-gray-700">
+                    <div id="tab-aceleracao" class="tab-content active prose max-w-none text-gray-800">
+                        <h3 class="font-bold text-blue-700 text-xl">Trajetória: Retomada e Liderança</h3>
+                        <p>Neste cenário, Goiás implementa ações de ruptura, capitalizando seus potenciais e revertendo a tendência de queda, visando uma posição entre os Top 15.</p>
+                        <ul>
+                            <li><strong>Alavancas Chave:</strong> Aumento real e plurianual do orçamento de P&D (FAPEG + Secretarias); lançamento de editais anuais de cooperação Empresa-ICT-SENAI com foco em resultados de PI; programa estadual robusto de *scale-ups* (crédito + compras públicas); densificação da infraestrutura de inovação (parques, incubadoras, centros SENAI-Hub).</li>
+                            <li><strong>Metas (24-36 meses):</strong> Recuperar 8-10 posições no pilar Inovação, voltando ao <span class="text-highlight">Top 15 nacional</span>.</li>
+                        </ul>
+                    </div>
+                    <div id="tab-base" class="tab-content prose max-w-none text-gray-800">
+                        <h3 class="font-bold text-yellow-700 text-xl">Trajetória: Crescimento Moderado com Riscos</h3>
+                        <p>Goiás implementa melhorias incrementais, mas sem alterar a estrutura de forma significativa. O estado "anda de lado" enquanto outros avançam, perdendo o *momentum* competitivo.</p>
+                        <ul>
+                            <li><strong>Alavancas Chave:</strong> Recomposição parcial do orçamento de P&D (apenas inflacionária); lançamento de editais pontuais sem coordenação; foco limitado na infraestrutura de comunicação (I&C). Ausência de um plano estadual de *scale-ups*.</li>
+                            <li><strong>Metas (24-36 meses):</strong> Leve ganho de 2-3 posições ou <span class="text-highlight">manutenção no "baixo 20s"</span>.</li>
+                        </ul>
+                    </div>
+                    <div id="tab-estagnacao" class="tab-content prose max-w-none text-gray-800">
+                        <h3 class="font-bold text-red-700 text-xl">Trajetória: Retrocesso e Perda de Atratividade</h3>
+                        <p>O cenário de inércia e retrocesso. Ações estratégicas não são tomadas, cortes orçamentários em P&D e Bolsas se mantêm, e a evasão de talentos se acentua.</p>
+                        <ul>
+                            <li><strong>Alavancas (Negativas):</strong> Contingenciamento contínuo de P&D e educação; compressão de bolsas de pesquisa; ausência de políticas para *scale-ups*; burocracia excessiva e desestímulo ao empreendedorismo tecnológico.</li>
+                            <li><strong>Metas (24-36 meses):</strong> Queda adicional no ranking, podendo chegar ao <span class="text-highlight">terço inferior do país (Top 3 negativo)</span>.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção 4: A Alavanca SENAI -->
+        <section class="section-wrapper" id="solucao">
+            <h2 class="section-heading">
+                <!-- Icon: Puzzle -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 011-1h1a2 2 0 100-4H7a1 1 0 01-1-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" />
+                </svg>
+                A Alavanca Estratégica: O Potencial SENAI
+            </h2>
+            <p class="section-subheading">O SENAI e seus Institutos são o vetor para reverter a queda, conectando os gaps de Goiás com soluções de ponta. <span class="font-bold text-blue-600">Clique nos Gaps do "Diagnóstico" (acima) para ver as soluções aqui.</span></p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Card: SENAI Hub Goiás (Proposta de Valor) -->
+                <div class="solution-card card">
+                    <h3 class="font-bold text-blue-700 text-xl mb-3">SENAI Hub Goiás: Conexão e Fomento</h3>
+                    <p class="text-gray-700 text-sm mb-4">A ponte entre os <span class="text-highlight">desafios das indústrias</span> e a rede de inovação. Catalisador para novas soluções e *startups* industriais.</p>
+                    <ul class="list-disc list-inside text-sm text-gray-700">
+                        <li>**Resolve Gaps:** Invest. P&D, Empresas Alto Cresc.</li>
+                        <li>**Como:** Acesso a Editais, Fomentos, Linhas de Crédito e conexão com ICTs e *Startups*.</li>
+                    </ul>
+                </div>
+
+                <!-- Card: Framework de Serviços -->
+                <div class="solution-card card">
+                    <h3 class="font-bold text-green-700 text-xl mb-3">Framework de Serviços: P,D&I Aplicada</h3>
+                    <p class="text-gray-700 text-sm mb-4">Atuação multifacetada para <span class="text-highlight">transferência de tecnologia</span>. O "Habitat SENAI de Inovação" centraliza o apoio.</p>
+                    <ul class="list-disc list-inside text-sm text-gray-700">
+                        <li>**Resolve Gaps:** Pesquisa Científica, Invest. P&D.</li>
+                        <li>**Como:** Centros de Excelência (P,D&I), Centros de Competência (Consultoria) e Laboratórios (Metrologia).</li>
+                    </ul>
+                </div>
+
+                <!-- Card: Institutos de Tecnologia & Especialização -->
+                <div class="solution-card card">
+                    <h3 class="font-bold text-purple-700 text-xl mb-3">Pólos de Conhecimento: Capilaridade</h3>
+                    <p class="text-gray-700 text-sm mb-4">Com <span class="text-highlight">2 Institutos de Tecnologia e 8 Unidades</span>, o SENAI GO interioriza a inovação em setores estratégicos.</p>
+                    <ul class="list-disc list-inside text-sm text-gray-700">
+                        <li>**Resolve Gaps:** Estrutura de Apoio.</li>
+                        <li>**Como:** Polos especializados (Alimentos, Automação, Polimorfismo Molecular) que atuam como âncoras regionais.</li>
+                    </ul>
+                </div>
+
+                <!-- Card: Redes Colaborativas Nacionais e Internacionais -->
+                <div class="solution-card card">
+                    <h3 class="font-bold text-indigo-700 text-xl mb-3">Redes Colaborativas: Conhecimento Global</h3>
+                    <p class="text-gray-700 text-sm mb-4">Conexão com <span class="text-highlight">parceiros estratégicos</span> mundiais (Fraunhofer, MIT) para trazer benchmarking e tecnologias de ponta.</p>
+                    <ul class="list-disc list-inside text-sm text-gray-700">
+                        <li>**Resolve Gaps:** Estrutura de Apoio, Pesquisa Científica.</li>
+                        <li>**Como:** Trabalho colaborativo em rede para resolver desafios complexos com expertise internacional.</li>
+                    </ul>
+                </div>
+                
+                <!-- Card: Modelo de Colaboração Aberta -->
+                <div class="solution-card card">
+                    <h3 class="font-bold text-gray-800 text-xl mb-3">Inovação Aberta: Novos Modelos</h3>
+                    <p class="text-gray-700 text-sm mb-4">Modelo para localizar parceiros e demandas, desde o "Universo Aberto" (tendências) até o <span class="text-highlight">Ambiente Virtual de Incubação (AVI)</span>.</p>
+                    <ul class="list-disc list-inside text-sm text-gray-700">
+                        <li>**Resolve Gaps:** Empresas Alto Cresc., Patentes.</li>
+                        <li>**Como:** Seleção rápida de parceiros e negociação de contratos para desenvolver novos projetos e negócios.</li>
+                    </ul>
+                </div>
+
+                <!-- Card: Portfólio de Oportunidades Integrado -->
+                <div class="solution-card card">
+                    <h3 class="font-bold text-red-700 text-xl mb-3">Portfólio Estratégico: Foco em Patentes</h3>
+                    <p class="text-gray-700 text-sm mb-4">Desenvolvimento de soluções focadas nos maiores gaps de Goiás para <span class="text-highlight">gerar propriedade intelectual</span> e novos produtos.</p>
+                    <ul class="list-disc list-inside text-sm text-gray-700">
+                        <li>**Resolve Gaps:** Patentes, Pesquisa Científica.</li>
+                        <li>**Como:** Foco em AgroTechs (Biotecnologia), Indústria 4.0 (Automação), Saúde (Fármacos) e Ecoinovação.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção 5: Rotas Táticas -->
+        <section class="section-wrapper" id="acao">
+            <h2 class="section-heading">
+                <!-- Icon: Check Circle -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                O Plano de Ação: Rotas Táticas (90-360 dias)
+            </h2>
+            <p class="section-subheading">Ações estratégicas de alto impacto que podem ser implementadas no curto prazo, potencializando a atuação do SENAI.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Card Ação 1 -->
+                <div class="card bg-blue-50 border-blue-200 hover:shadow-lg hover:-translate-y-1">
+                    <h3 class="font-bold text-blue-800 text-xl mb-2">1. Pacto por P&D (90 dias)</h3>
+                    <p class="text-sm text-gray-700">Pactuar meta fiscal de P&D 2025-2027 com compromisso plurianual. <span class="font-semibold text-blue-700">Envolver FAPEG, Secretarias e o SENAI Hub</span> na definição de prioridades.</p>
+                </div>
+                <!-- Card Ação 2 -->
+                <div class="card bg-teal-50 border-teal-200 hover:shadow-lg hover:-translate-y-1">
+                    <h3 class="font-bold text-teal-800 text-xl mb-2">2. Editais de Co-criação (180 dias)</h3>
+                    <p class="text-sm text-gray-700">Lançar 2 editais de fomento à cooperação Indústria + ICTs (incluindo <span class="font-semibold text-teal-700">Institutos SENAI</span>), com TRLs definidos e bônus por patentes.</p>
+                </div>
+                <!-- Card Ação 3 -->
+                <div class="card bg-orange-50 border-orange-200 hover:shadow-lg hover:-translate-y-1">
+                    <h3 class="font-bold text-orange-800 text-xl mb-2">3. Programa Scale-Up GO (180 dias)</h3>
+                    <p class="text-sm text-gray-700">Abrir programa de aceleração para <span class="font-semibold text-orange-700">Empresas de Alto Crescimento</span>, com crédito e compras públicas. O <span class="font-semibold text-orange-700">SENAI Hub</span> pode ser um *partner* chave.</p>
+                </div>
+                <!-- Card Ação 4 -->
+                <div class="card bg-purple-50 border-purple-200 hover:shadow-lg hover:-translate-y-1">
+                    <h3 class="font-bold text-purple-800 text-xl mb-2">4. Rede de Inovação Integrada (360 dias)</h3>
+                    <p class="text-sm text-gray-700">Dobrar estruturas de apoio em microrregiões-alvo, <span class="font-semibold text-purple-700">integrando incubadoras, parques e a rede de Institutos SENAI</span>.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Seção 6: Fontes -->
+        <section class="section-wrapper" id="fontes">
+            <h2 class="section-heading">
+                <!-- Icon: Database -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7l8-4 8 4M4 17l8 4 8-4" />
+                </svg>
+                Fontes e Metodologia
+            </h2>
+            <p class="section-subheading">Os dados e informações que compõem este painel de foresight.</p>
+            <div class="text-sm text-gray-700 space-y-2">
+                <p><span class="font-bold text-gray-900">1. Ranking de Competitividade dos Estados (CLP):</span> Dados de 2022, 2023 e 2024 (com anos-base 2022/2023) do Centro de Liderança Pública. Usados para os gráficos, gaps e posições gerais.</p>
+                <p><span class="font-bold text-gray-900">2. Mapa de Posições (2024):</span> Posições de todos os estados com base na imagem `image_8da3c3.png` fornecida.</p>
+                <p><span class="font-bold text-gray-900">3. Portfólio e Modelos SENAI:</span> Informações estratégicas, institutos e modelos de colaboração extraídos das imagens institucionais fornecidas (`image_8e115b.png`, `image_8e113b.png`, `image_8e1103.png`, `image_8e1083.png`, `image_8e1062.png`, `image_8e0db7.png`).</p>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="text-center text-sm text-gray-600 mt-10 p-4">
+            <p>&copy; 2025 Foresight Estratégico & Design de Futuros.</p>
+            <p>Infográfico dinâmico e interativo desenvolvido para inspirar a inovação em Goiás.</p>
+        </footer>
+    </div>
+
+    <!-- Modal Estrutura -->
+    <div id="modal-backdrop" class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center p-4 z-40 hidden opacity-0" onclick="closeModal()">
+        <div id="modal-content" class="bg-white rounded-xl shadow-2xl max-w-2xl w-full z-50 p-6 opacity-0 transform -translate-y-5" onclick="event.stopPropagation()">
+            <!-- Cabeçalho do Modal -->
+            <div class="flex justify-between items-center mb-4">
+                <h2 id="modal-title" class="text-2xl font-bold text-gray-900"></h2>
+                <button id="modal-close" class="text-gray-500 hover:text-gray-800 text-3xl font-light" onclick="closeModal()">&times;</button>
+            </div>
+            <!-- Corpo do Modal -->
+            <div id="modal-body" class="text-gray-700 prose max-w-none text-base leading-relaxed">
+                <p>Análise detalhada...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- REGISTRO DE PLUGINS DO CHART.JS ---
+        Chart.register(ChartDataLabels);
+        // Configurações globais do Chart.js
+        Chart.defaults.font.family = "'Inter', sans-serif";
+        Chart.defaults.plugins.tooltip.enabled = true;
+        Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(0, 0, 0, 0.85)';
+        Chart.defaults.plugins.tooltip.titleFont = { size: 16, weight: 'bold' };
+        Chart.defaults.plugins.tooltip.bodyFont = { size: 14 };
+        Chart.defaults.plugins.tooltip.padding = 12;
+        Chart.defaults.plugins.tooltip.cornerRadius = 8;
+        
+        // --- DADOS PARA OS GRÁFICOS E MAPA ---
+        const goHistoricalData = {
+            labels: ['2022', '2023', '2024'],
+            positions: [17, 21, 26]
+        };
+
+        const goRadarData = {
+            labels: [
+                'Invest. P&D Público (16º)',
+                'Patentes (19º)',
+                'Bolsas (Mest/Dout) (15º)',
+                'Estrutura de Apoio (21º)',
+                'Pesquisa Científica (24º)',
+                'Info & Comunicação (13º)',
+                'Empresas Alto Cresc. (24º)'
+            ],
+            positions: [16, 19, 15, 21, 24, 13, 24]
+        };
+        
+        // Dados para o mapa interativo
+        const stateData = {
+            'SP': { 
+                rank: 1, 
+                title: 'São Paulo (1º) - O Gigante da Inovação', 
+                analysis: 'Líder absoluto e benchmark nacional. Apresenta a combinação ideal: <span class="font-semibold text-blue-600">Investimentos P&D robustos</span> (públicos e privados), maior <span class="font-semibold text-blue-600">densidade de Estrutura de Apoio</span> (parques, incubadoras, USP, Unicamp), e um ecossistema maduro de Empresas de Alto Crescimento (EAC) e capital de risco. Sua vasta rede de universidades e centros de pesquisa impulsiona Patentes e Pesquisa Científica.' 
+            },
+            'AM': { 
+                rank: 9, 
+                title: 'Amazonas (9º) - O Recuo', 
+                analysis: 'Deixou de ser o vice-líder (2º) e caiu para 9º. Apesar da queda, mantém-se no Top 10, ainda impulsionado por P&D da Zona Franca de Manaus (especialmente privado), mas perdeu competitividade relativa para outros estados, como Santa Catarina.' 
+            },
+            'SC': { 
+                rank: 2, 
+                title: 'Santa Catarina (2º) - O Ecossistema Dinâmico', 
+                analysis: 'Assume a vice-liderança nacional. É o modelo de <span class="font-semibold text-blue-600">ecossistema denso e capilarizado</span>. Destaque em <span class="font-semibold text-blue-600">Estrutura de Apoio</span> (ACATE) e altíssimo índice de <span class="font-semibold text-blue-600">Empresas de Alto Crescimento</span>. É o benchmark em "converter pesquisa em nota fiscal", com forte cultura de cooperação universidade-empresa.' 
+            },
+            'MS': { 
+                rank: 14, 
+                title: 'Mato Grosso do Sul (14º) - O Equilíbrio Regional', 
+                analysis: 'O melhor do Centro-Oeste e principal benchmark regional para Goiás. Conseguiu se manter no meio da tabela (Top 15), apresentando um desempenho muito mais equilibrado que seus vizinhos, sem grandes gaps. Possui um <span class="font-semibold text-yellow-600">bom desempenho em P&D e Estrutura de Apoio</span>, e começa a atrair investimentos em AgroTech.' 
+            },
+            'DF': { 
+                rank: 17, 
+                title: 'Distrito Federal (17º) - O Polo de Conhecimento', 
+                analysis: 'Leve melhora (de 18º para 17º). Continua forte em <span class="font-semibold text-yellow-600">Pesquisa Científica e Bolsas de Mestrado e Doutorado</span>, refletindo a alta concentração de universidades federais (UnB) e servidores públicos de alta qualificação, mas possui <span class="font-semibold text-red-600">gaps em dinamismo empresarial (Empresas de Alto Crescimento) e Patentes</span>, indicando dificuldade em converter conhecimento acadêmico em negócios.' 
+            },
+            'GO': { 
+                rank: 26, 
+                title: 'Goiás (26º) - O Desafio Urgente', 
+                analysis: 'Nova queda no ranking, agora para 26º, à frente apenas de Tocantins (27º). Os gaps são críticos e generalizados, impactando diretamente a competitividade do estado. A <span class="font-semibold text-red-600">base científica e o dinamismo empresarial estão no terço inferior</span>, e o estado se distancia dos líderes e até dos benchmarks regionais (MS e DF). A reversão desse quadro exige ações estruturais imediatas em P&D e fomento a empresas de base tecnológica.' 
+            },
+            'MT': { 
+                rank: 20, 
+                title: 'Mato Grosso (20º) - Evolução Visível', 
+                analysis: 'Melhorou significativamente, saindo da lanterna (que ocupava em rankings anteriores) para a 20ª posição. Ainda apresenta <span class="font-semibold text-yellow-600">gaps estruturais</span>, mas demonstra uma evolução, <span class="font-semibold text-blue-600">superando Goiás</span> e se aproximando do DF. Indica que investimentos focados, mesmo que recentes, podem gerar resultados.' 
+            },
+            'TO': {
+                rank: 27,
+                title: 'Tocantins (27º) - A Lanterna da Inovação',
+                analysis: 'Ocupa a última posição no pilar de Inovação. Apresenta os <span class="font-semibold text-red-600">maiores desafios estruturais do país</span> em quase todos os 7 indicadores, indicando um ecossistema de inovação ainda muito incipiente e alta dependência de tecnologias externas.'
+            }
+        };
+
+        // --- LÓGICA DO DOM (GRÁFICOS, ABAS, MODAL) ---
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- 1. Gráfico Histórico (Barra) ---
+            const ctxHistorical = document.getElementById('historicalChart')?.getContext('2d');
+            if (ctxHistorical) {
+                new Chart(ctxHistorical, {
+                    type: 'bar',
+                    data: {
+                        labels: goHistoricalData.labels,
+                        datasets: [{
+                            label: 'Posição no Ranking',
+                            data: goHistoricalData.positions,
+                            backgroundColor: (context) => {
+                                const year = context.label;
+                                if (year === '2022') return 'rgba(52, 211, 153, 0.8)'; // emerald-400
+                                if (year === '2023') return 'rgba(251, 191, 36, 0.8)'; // amber-400
+                                if (year === '2024') return 'rgba(239, 68, 68, 0.8)'; // red-500
+                                return 'rgba(156, 163, 175, 0.8)';
+                            },
+                            borderColor: (context) => {
+                                const year = context.label;
+                                if (year === '2022') return 'rgba(16, 185, 129, 1)'; // emerald-600
+                                if (year === '2023') return 'rgba(245, 158, 11, 1)'; // amber-600
+                                if (year === '2024') return 'rgba(220, 38, 38, 1)'; // red-600
+                                return 'rgba(107, 114, 128, 1)';
+                            },
+                            borderWidth: 1.5,
+                            borderRadius: 6,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                reverse: true,
+                                min: 1,
+                                max: 27,
+                                title: {
+                                    display: true,
+                                    text: 'Posição no Ranking (1º = Melhor)',
+                                    font: { size: 12, weight: '600' },
+                                    color: '#4b5563'
+                                },
+                                ticks: {
+                                    stepSize: 5,
+                                    font: { size: 10 },
+                                    color: '#4b5563'
+                                },
+                                grid: { color: 'rgba(229, 231, 235, 0.7)' }
+                            },
+                            x: {
+                                ticks: {
+                                    font: { size: 12, weight: '600' },
+                                    color: '#374151'
+                                },
+                                grid: { display: false }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            datalabels: {
+                                anchor: 'end',
+                                align: 'top',
+                                color: '#111827',
+                                font: { weight: 'bold', size: 14 },
+                                formatter: (value) => `${value}º`
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: (context) => `Posição em Inovação: ${context.parsed.y}º`
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // --- 2. Gráfico de Radar (Gaps) ---
+            const ctxRadar = document.getElementById('radarChart')?.getContext('2d');
+            if (ctxRadar) {
+                new Chart(ctxRadar, {
+                    type: 'radar',
+                    data: {
+                        labels: goRadarData.labels.map(l => l.split('(')[0].trim()), // Labels mais curtos
+                        datasets: [{
+                            label: 'Posição de Goiás (2024)',
+                            data: goRadarData.positions,
+                            backgroundColor: 'rgba(239, 68, 68, 0.3)', // red-500
+                            borderColor: 'rgba(220, 38, 38, 1)', // red-600
+                            borderWidth: 2,
+                            pointBackgroundColor: 'rgba(220, 38, 38, 1)',
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            pointBorderColor: '#fff',
+                            pointHoverBorderColor: '#fff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            r: {
+                                reverse: true, 
+                                min: 1,
+                                max: 27,
+                                pointLabels: {
+                                    font: { size: 10, weight: '600' },
+                                    color: '#4b5563'
+                                },
+                                ticks: {
+                                    stepSize: 5,
+                                    backdropColor: 'rgba(255, 255, 255, 0.85)',
+                                    font: { size: 9, weight: 'bold' },
+                                    color: '#4b5563'
+                                },
+                                grid: { color: 'rgba(229, 231, 235, 0.7)' },
+                                angleLines: { color: 'rgba(229, 231, 235, 0.7)' }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false }, // Legenda já está na lista
+                            datalabels: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: (context) => `${goRadarData.labels[context.dataIndex]}: ${context.parsed.r}º Posição`
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // --- 3. Lógica das Abas (Tabs) ---
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    button.classList.add('active');
+                    const targetTabId = button.getAttribute('data-tab');
+                    document.getElementById(targetTabId)?.classList.add('active');
+                });
+            });
+
+            // --- 4. Lógica do Mapa Interativo (Modal) ---
+            const dots = document.querySelectorAll('.map-dot');
+            dots.forEach(dot => {
+                dot.addEventListener('click', (e) => {
+                    const stateKey = e.currentTarget.getAttribute('data-state');
+                    if (stateKey) openModal(stateKey);
+                });
+            });
+
+            // --- 5. NOVA LÓGICA: Interação de Gaps no Mesmo Bloco (Accordion) ---
+            const gapToggleButtons = document.querySelectorAll('.gap-toggle-btn');
+            const insightPanels = document.querySelectorAll('.insight-panel');
+
+            gapToggleButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetPanelId = button.dataset.target;
+                    const targetPanel = document.getElementById(targetPanelId);
+
+                    // Verifica se o painel clicado já está aberto
+                    const isAlreadyOpen = targetPanel.style.display === 'block';
+
+                    // Fecha todos os painéis e remove a classe 'active' de todos os botões
+                    insightPanels.forEach(panel => {
+                        panel.style.display = 'none';
+                    });
+                    gapToggleButtons.forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+
+                    // Se não estava aberto, abre o painel clicado e ativa o botão
+                    if (!isAlreadyOpen) {
+                        targetPanel.style.display = 'block';
+                        button.classList.add('active');
+                    }
+                });
+            });
+        });
+
+        // --- Funções do Modal ---
+        const modalBackdrop = document.getElementById('modal-backdrop');
+        const modalContent = document.getElementById('modal-content');
+        const modalTitle = document.getElementById('modal-title');
+        const modalBody = document.getElementById('modal-body');
+
+        function openModal(stateKey) {
+            const data = stateData[stateKey];
+            if (!data || !modalBackdrop || !modalContent || !modalTitle || !modalBody) return;
+
+            modalTitle.innerHTML = data.title;
+            modalBody.innerHTML = `<p>${data.analysis}</p>`;
+            
+            document.body.classList.add('modal-open');
+            modalBackdrop.classList.remove('hidden');
+            modalBackdrop.offsetWidth; // Força reflow
+            modalBackdrop.classList.remove('opacity-0');
+            modalContent.classList.remove('opacity-0', '-translate-y-5');
+        }
+
+        function closeModal() {
+            if (!modalBackdrop || !modalContent) return;
+            
+            modalBackdrop.classList.add('opacity-0');
+            modalContent.classList.add('opacity-0', '-translate-y-5');
+            setTimeout(() => {
+                modalBackdrop.classList.add('hidden');
+                document.body.classList.remove('modal-open');
+            }, 300); // Espera a transição
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && document.body.classList.contains('modal-open')) {
+                closeModal();
+            }
+        });
+
+    </script>
+</body>
+</html>
+
+
